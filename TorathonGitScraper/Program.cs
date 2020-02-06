@@ -20,7 +20,7 @@ namespace TorathonGitScraper
             {
                 o.BaseAddress = new Uri("https://api.github.com");
                 o.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("token", "099c27a583d87f3b3f8eed242b750ecef8a4f482");
+                    new AuthenticationHeaderValue("token", "0d5abdb9a0229594e645244bd888a0dbb2610f27");
                 o.DefaultRequestHeaders.Add("User-Agent", "TorathonGitScraper");
             });
 

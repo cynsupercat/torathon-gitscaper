@@ -45,9 +45,8 @@ namespace TorathonGitScraper
                 }
             }
 
-
-
-            return files;
+            var tasksResult = await Task.WhenAll(getFilesTasks);
+            return tasksResult.SelectMany(x => x).ToList();
         }
 
         public async Task<List<GitHubFile>> GetFiles(GitHubRepo repository, string path, Func<GitHubFile, bool> exp)
