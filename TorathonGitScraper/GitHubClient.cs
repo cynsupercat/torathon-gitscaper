@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,7 +17,7 @@ namespace TorathonGitScraper
             _httpClient = httpClient;
         }
 
-        public async Task<List<GitHubFile>> GetFiles(GitHubRepo repository)
+        public async Task<List<GitHubFile>> GetCsProjFiles(GitHubRepo repository)
         {
             var files = new List<GitHubFile>();
             var rootFiles = await GetFiles(repository, "src", f => f.IsDir());
@@ -46,7 +45,18 @@ namespace TorathonGitScraper
             }
 
             var tasksResult = await Task.WhenAll(getFilesTasks);
-            return tasksResult.SelectMany(x => x).ToList();
+            var csProjFiles = tasksResult.SelectMany(x => x).ToList();
+            return csProjFiles;
+        }
+
+        public async Task<GitHubBlob> GetBlob(string path)
+        {
+
+            var response = await _httpClient.GetAsync(path);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<GitHubBlob>(content);
         }
 
         public async Task<List<GitHubFile>> GetFiles(GitHubRepo repository, string path, Func<GitHubFile, bool> exp)

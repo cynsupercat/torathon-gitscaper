@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using Newtonsoft.Json;
 
 namespace TorathonGitScraper.Models
@@ -7,7 +11,7 @@ namespace TorathonGitScraper.Models
     {
         public string Name { get; set; }
 
-        [JsonProperty("download_url")]
+        [JsonProperty("git_url")]
         public string Url { get; set; }
 
         public string Path { get; set; }
@@ -27,6 +31,53 @@ namespace TorathonGitScraper.Models
         public bool IsCsProj()
         {
             return Name.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public List<PackageReference> GetAllPackageRefs(string content)
+        {
+            var refs = new List<PackageReference>();
+
+            if (!IsFile())
+                return refs;
+
+            using (var stream = FromString(content))
+            {
+                var projDefinition = XDocument.Load(stream);
+
+                try
+                {
+                    var packageReferences = projDefinition.Descendants("PackageReference");
+
+                    refs.AddRange(packageReferences.Select(x => new PackageReference(x)));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
+            return refs;
+        }
+
+        //private string DecodeContent()
+        //{
+        //    var data = Convert.FromBase64String(Base64EncodedContent);
+        //    var decoded = System.Text.Encoding.ASCII.GetString(data);
+
+        //    return decoded;
+        //}
+
+        private static Stream FromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+
+            writer.Write(s);
+            writer.Flush();
+
+            stream.Position = 0;
+
+            return stream;
         }
     }
 }
